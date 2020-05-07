@@ -1,5 +1,5 @@
-let testArray = [7,23,98,45,76,12,31,4,5,64,13,99,77,54,11,21,79,443,976,627,55,975,764,295,362,
-                856,991,773,201,119,118,440,339,227,434,130.197,540,227,356,298]
+let testArray = [7,23,98,45,76,12,31,5,4,64,13,99,77,54,11,21,79,443,976,627,55,975,764,295,362,
+                856,991,773,201,119,118,440,339,227,434,130,197,540,227,356,298]
 
 /**
  * 快速排序1
@@ -8,12 +8,17 @@ let testArray = [7,23,98,45,76,12,31,4,5,64,13,99,77,54,11,21,79,443,976,627,55,
  * 
  * 空间复杂度： O(logn)（递归调用消耗）
  * 
- * 稳定性： 不稳定
+ * 稳定性： 不稳定 因为排序的过程中元素之间进行的是互换，而不是插入。
+ * 
+ * 特点： 写法简单，浪费大量内存空间
  * 
  * @param {Array} array 待排序数组
  * @returns {Array} 
  */
 function quickSort1(array){
+  /**
+   * 当数组被分割到只剩下一个元素时直接返回这个元素
+   */
   if (array.length < 2) {
     return array
   }
@@ -29,7 +34,11 @@ function quickSort1(array){
       right.push(array[i])
     }
   }
-
+  /**
+   * 通过不断细分数组，将分割当数组再次按照规则分割，直至分成一个一个元素
+   * 直接返回数组，这样保证每层调用栈上层当函数return回来当数组都是有序的，
+   * 直到返回到整个函数执行结束返回整体有序的数组。
+   */
   return quickSort1(left).concat([target], quickSort1(right))
 }
 
@@ -41,6 +50,8 @@ function quickSort1(array){
  * 空间复杂度： O(logn)（递归调用消耗）
  * 
  * 稳定性： 不稳定
+ * 
+ * 特点： 不需要额外空间，思路复杂
  * 
  * @param {Array} array 待排序数组
  * @param {Number} start 开始索引值
@@ -55,20 +66,38 @@ function quickSort2(array, start, end) {
   const target = array[start]
   let l = start,
       r = end
-  
+  /**
+   * l为最左端索引值，r为最右端索引值，当l < r时进行循环
+   */
   while (l < r) {
+    /**
+     * 此循环目的是从后向前，跳过那些比target大的值，当不满足条件时，
+     * 说明此刻array[r]小于target，跳出循环并将array[r]值赋值给
+     * array[l]，因为在第一次执行的时候target的值和array[l]是相同
+     * 的，所以不用担心在首次array[l]被赋值时原来的值丢失。
+     */
     while (l < r && array[r] >= target) {
       r--
     }
     array[l] = array[r]
-
+    /**
+     * 此循环是从前往后，跳过那些比target小的值，当不满足条件时，说明
+     * array[l]的值大于target，此时将array[l]的值赋值给array[r]，
+     * 因为此时的array[r]已经在上面的代码中将值赋给了当时的array[l]，
+     * 所以也无需过多考虑。
+     */
     while (l < r && array[l] < target) {
       l++
     }
     array[r] = array[l]
   }
-
+    /**
+     * 当r===l时，说明这一轮当分拨已经完成，此时只剩下target的值没有被正确赋值， 
+     */
   array[l] = target
+  /**
+   * 将通过索引分割的局部数组在进行上述操作
+   */
   quickSort2(array, start, l - 1)
   quickSort2(array, l + 1, end)
 
@@ -84,9 +113,14 @@ function quickSort2(array, start, end) {
  * 
  * 稳定性： 稳定
  * 
+ * 特点： 空间复杂度略高，需要创建多个数组
+ * 
  * @param {Array} array 待排序数组
  */
 function mergeSort1(array) {
+  /**
+   * 当数组递归到只剩下一个元素时直接返回该数组
+   */
   if (array.length < 2) {
     return array
   }
@@ -94,7 +128,14 @@ function mergeSort1(array) {
   const mid = Math.floor(array.length / 2),
         front = array.slice(0, mid),
         end = array.slice(mid)
-
+  /**
+   * 因为每个mergeSort1方法都会以merge1方法作为返回，而merge1的返回又是
+   * 一个数组，所以函数最终执行的结果会是一个数组，这里时两个函数相互递归，越
+   * 上层的mergeSort1返回的局部有序数组越长，就这样一直到顶层放回整个有序数组。
+   * 
+   * 当局部数组被递归到只有一个元素时直接返回该数组，此时这些数组传入merge1进行排序
+   * 当排序完成后return，return的有序数组又变成上一层mergeSort1的返回值
+   */
   return merge1(mergeSort1(front), mergeSort1(end))
 }
 /**
@@ -135,6 +176,8 @@ function merge1(front, end) {
  * 
  * 稳定性： 稳定
  * 
+ * 特点： 写法复杂
+ * 
  * @param {Array} array 待排序数组
  * @param {Number} left 当前数组开始索引值
  * @param {Number} right 当前数组结束索引值
@@ -142,6 +185,11 @@ function merge1(front, end) {
  * @returns {Array}
  */
 function mergeSort2(array, left, right, temp = []) {
+  /**
+   * 在递归中计算出来当mid值传到下一层递归中，当下一层递归的right和left值
+   * 相等时就停止继续递归,当停止递归时，说明此刻的数组已经被分割成最小只有两
+   * 个元素的单元，然后从这些最小的单元中进行merge2操作。
+   */
   if (left < right) {
     const mid = Math.floor((left + right) / 2)
 
@@ -160,12 +208,17 @@ function merge2(array, left, right, temp) {
       tempIndex = 0
 
   while (leftIndex <= mid && rightIndex <= right) {
+    /**
+     * 从当前分成的两个单元中有序将元素赋值给，此处的单元都是从底层的递归中返回
+     * 上来的，所以这两个单元都是各自有序的。
+     */
     if (array[leftIndex] < array[rightIndex]) {
       temp[tempIndex++] = array[leftIndex++]
     } else {
       temp[tempIndex++] = array[rightIndex++]
     }
   }
+  
   while (leftIndex <= mid) {
     temp[tempIndex++] = array[leftIndex++]
   }
@@ -177,7 +230,7 @@ function merge2(array, left, right, temp) {
     array[i] = temp[tempIndex++];
   }
 }
-
+console.log(mergeSort2(testArray).toString())
 /**
  * 选择排序
  * 
