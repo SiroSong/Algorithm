@@ -141,6 +141,8 @@ function mergeSort1(array) {
  * 
  * @param {Array} front 前半段数组
  * @param {Array} end 后半段数组
+ * 
+ * 这个函数的归并操作主要是针对数组的元素进行操作
  */
 function merge1(front, end) {
   const temp = []
@@ -199,7 +201,9 @@ function mergeSort2(array, left, right, temp = []) {
 
   return array
 }
-
+/**
+ * 这个归并函数主要是针对数组的索引值进行操作
+ */
 function merge2(array, left, right, temp) {
   const mid = Math.floor((left + right) / 2);
   let leftIndex = left,
@@ -251,12 +255,17 @@ function merge2(array, left, right, temp) {
  * 
  * 空间复杂度：O(1)
  * 
- * 稳定性： 不稳定
+ * 稳定性： 不稳定 比如[5, 5, 8, 7, 3] 数组的位置会产生互换
  * 
  * @param {Array} array
  */
 function selectSort(array) {
   for (let i = 0; i < array.length - 1; i++) {
+    /**
+     * 用一个局部变量标记在本轮循环中最小值的索引，循环结束后，将本轮循环得到的最小值
+     * 和外层循环的值进行交换，然后外层进入下一层循环，内容循环则从外层循环当前索引开
+     * 始继续与后面的值循环比较。
+     */
     let minIndex = i
     for (let j = i + 1; j < array.length; j++) {
       if (array[j] < array[minIndex]) {
@@ -280,11 +289,18 @@ function selectSort(array) {
  * @param {Array} array 
  */
 function insertSort(array) {
+  /**
+   * 外层循环从数组的第二个元素开始，内层循环从外层循环当前索引值向前循环比较，使用
+   * target记录本轮比较重最小的值的索引，在内层循环中，每次比较如果符合条件，该数组
+   * 的值完成位置交换后，将此刻的索引值赋值给target，继续向前循环与最新的target指
+   * 向的数组值进行比较，一直至外层循环结束。
+   */
   for (let i = 1; i < array.length; i++) {
     let target = i
     for (let j = i - 1; j >= 0; j--) {
       if (array[target] < array[j]) {
         [array[target], array[j]] = [array[j], array[target]]
+        target = j
       } else {
         break
       }
@@ -304,6 +320,14 @@ function insertSort(array) {
  * @param {Array} array 
  */
 function bubbleSort(array) {
+  /**
+   * 内层循环比较当前索引的值所指向的数组元素和它的后一个元素的大小，然后判断是否交换
+   * 位置，外层循环用来记录经过了几次循环了，每经过一次循环都意味着这个大数完成下沉，
+   * 没必要在参与到以后的循环比较，然后将内层循环的范围缩小外层循环次数个，外层循环内
+   * 部的complete变量标记着当前数组是否已经有序，当内部循环执行完之后，complete的
+   * 值没有编程false，说明本轮循环没有中数组中元素的位置都没有变，这说明现在数组中的
+   * 元素已经是有序的了，就立即终止循环。
+   */
   for (let j = 0; j < array.length; j++) {
     let complete = true
 
