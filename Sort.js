@@ -35,9 +35,9 @@ function quickSort1(array){
     }
   }
   /**
-   * 通过不断细分数组，将分割当数组再次按照规则分割，直至分成一个一个元素
-   * 直接返回数组，这样保证每层调用栈上层当函数return回来当数组都是有序的，
-   * 直到返回到整个函数执行结束返回整体有序的数组。
+   * 通过不断细分数组，将分割当数组再次按照规则分割，直至分成一个一个元素直接返回数组，
+   * 这样保证每层调用栈上层当函数return回来当数组都是有序的，直到返回到整个函数执行
+   * 结束返回整体有序的数组。
    */
   return quickSort1(left).concat([target], quickSort1(right))
 }
@@ -71,20 +71,19 @@ function quickSort2(array, start, end) {
    */
   while (l < r) {
     /**
-     * 此循环目的是从后向前，跳过那些比target大的值，当不满足条件时，
-     * 说明此刻array[r]小于target，跳出循环并将array[r]值赋值给
-     * array[l]，因为在第一次执行的时候target的值和array[l]是相同
-     * 的，所以不用担心在首次array[l]被赋值时原来的值丢失。
+     * 此循环目的是从后向前，跳过那些比target大的值，当不满足条件时，说明此刻
+     * array[r]小于target，跳出循环并将array[r]值赋值给array[l]，因为在第一次
+     * 执行的时候target的值和array[l]是相同的，所以不用担心在首次array[l]被赋值
+     * 时原来的值丢失。
      */
     while (l < r && array[r] >= target) {
       r--
     }
     array[l] = array[r]
     /**
-     * 此循环是从前往后，跳过那些比target小的值，当不满足条件时，说明
-     * array[l]的值大于target，此时将array[l]的值赋值给array[r]，
-     * 因为此时的array[r]已经在上面的代码中将值赋给了当时的array[l]，
-     * 所以也无需过多考虑。
+     * 此循环是从前往后，跳过那些比target小的值，当不满足条件时，说明array[l]的值
+     * 大于target，此时将array[l]的值赋值给array[r]，因为此时的array[r]已经在
+     * 上面的代码中将值赋给了当时的array[l]，所以也无需过多考虑。
      */
     while (l < r && array[l] < target) {
       l++
@@ -129,9 +128,9 @@ function mergeSort1(array) {
         front = array.slice(0, mid),
         end = array.slice(mid)
   /**
-   * 因为每个mergeSort1方法都会以merge1方法作为返回，而merge1的返回又是
-   * 一个数组，所以函数最终执行的结果会是一个数组，这里时两个函数相互递归，越
-   * 上层的mergeSort1返回的局部有序数组越长，就这样一直到顶层放回整个有序数组。
+   * 因为每个mergeSort1方法都会以merge1方法作为返回，而merge1的返回又是一个数组，
+   * 所以函数最终执行的结果会是一个数组，这里时两个函数相互递归，越上层的mergeSort1
+   * 返回的局部有序数组越长，就这样一直到顶层放回整个有序数组。
    * 
    * 当局部数组被递归到只有一个元素时直接返回该数组，此时这些数组传入merge1进行排序
    * 当排序完成后return，return的有序数组又变成上一层mergeSort1的返回值
@@ -186,9 +185,9 @@ function merge1(front, end) {
  */
 function mergeSort2(array, left, right, temp = []) {
   /**
-   * 在递归中计算出来当mid值传到下一层递归中，当下一层递归的right和left值
-   * 相等时就停止继续递归,当停止递归时，说明此刻的数组已经被分割成最小只有两
-   * 个元素的单元，然后从这些最小的单元中进行merge2操作。
+   * 在递归中计算出来当mid值传到下一层递归中，当下一层递归的right和left值相等时就
+   * 停止继续递归,当停止递归时，说明此刻的数组已经被分割成最小只有两个元素的单元，然
+   * 后从这些最小的单元中进行merge2操作。
    */
   if (left < right) {
     const mid = Math.floor((left + right) / 2)
@@ -207,30 +206,44 @@ function merge2(array, left, right, temp) {
       rightIndex = mid + 1,
       tempIndex = 0
 
-  while (leftIndex <= mid && rightIndex <= right) {
+  while (leftIndex <= mid || rightIndex <= right) {
     /**
-     * 从当前分成的两个单元中有序将元素赋值给，此处的单元都是从底层的递归中返回
-     * 上来的，所以这两个单元都是各自有序的。
+     * 这里获取的数组区间是由下层的递归函数返回上来的，在这个区间的数组元素是两个有序
+     * 数组组成的，再通过mid值将这个数组分别看成两个有序数组，两个数组分别依次比较，
+     * 将这两个数组按顺序放到整合到temp里面，此时，temp里就是一个由上一次返回的两个
+     * 有序数组重新组合成的一个有序数组。
+     * 
+     * 第一个和第二个判断是在处理从上层返回来的两个区间长度不相等时（mid的值不是每次
+     * 都能平分两边的区间），一边已经遍历完了，直接将单边区间里的值添加到temp里，然
+     * 后直接进如下一轮循环。
+     * 
+     * 这里不管判断走哪个分支，temp都照常++，使得temp数组始终是按顺序添加元素，而
+     * leftIndex和rightIndex只有在满足条件时++（索引值向后移动），这里也就是，从
+     * 两个数组里依次找到小的数放到temp里。
      */
+    if (leftIndex <= mid && rightIndex > right) {
+      temp[tempIndex++] = array[leftIndex++]
+      continue
+    }
+
+    if (rightIndex <= right && leftIndex > mid) {
+      temp[tempIndex++] = array[rightIndex++]
+      continue
+    }
+
     if (array[leftIndex] < array[rightIndex]) {
       temp[tempIndex++] = array[leftIndex++]
     } else {
       temp[tempIndex++] = array[rightIndex++]
     }
   }
-  
-  while (leftIndex <= mid) {
-    temp[tempIndex++] = array[leftIndex++]
-  }
-  while (rightIndex <= right) {
-    temp[tempIndex++] = array[rightIndex++]
-  }
+
   tempIndex = 0;
   for (let i = left; i <= right; i++) {
     array[i] = temp[tempIndex++];
   }
 }
-console.log(mergeSort2(testArray).toString())
+
 /**
  * 选择排序
  * 
@@ -323,8 +336,8 @@ function heapSort(array) {
   creatHeap(array)
 
   /**
-   * 每进行一次循环，都将堆顶的最大值与当前堆的末尾值进行互换，再将堆的尾部边界缩小一个，
-   * 让经过上浮的大数稳定在数组的末尾而不参与下一轮的堆排序
+   * 每进行一次循环，都将堆顶的最大值与当前堆的末尾值进行互换，再将堆的尾部边界缩小一
+   * 个，让经过上浮的大数稳定在数组的末尾而不参与下一轮的堆排序
    */
   for (let i = array.length - 1; i > 0; i--) {
     [array[i], array[0]] = [array[0], array[i]]
